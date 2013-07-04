@@ -5,8 +5,7 @@ import org.eclipse.jetty.servlet._
 import javax.servlet.http._
 
 object Main extends App {
-
-    val server = new Server( 80 )
+    val server = new Server(Integer.valueOf(System.getenv("PORT")))
     val context = new ServletContextHandler(ServletContextHandler.SESSIONS)
     context.setContextPath("/")
     server.setHandler(context)
