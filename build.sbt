@@ -12,6 +12,10 @@ seq(webSettings :_*)
 // append -deprecation to the options passed to the Scala compiler
 scalacOptions ++= Seq("-deprecation", "-feature")
 
+// Set a custom resource directory to pull in built assets
+resourceDirectory in Compile <<= (target in Compile)( _ / "resources" )
+
+
 // Application dependencies
 libraryDependencies ++= Seq(
     "com.roundeights" %% "shnappy" % "0.1",
