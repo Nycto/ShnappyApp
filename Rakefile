@@ -55,21 +55,33 @@ task :herokucli do
 end
 
 
+$app_name = nil
+# Ensures that the heroku app name exists
+task :herokuapp do
+
+    $app_name = File.read(".heroku").strip if File.exists?(".heroku")
+
+    if $app_name.nil? || $app_name.empty?
+        $app_name = getInput("Enter the Heroku project name:")
+        File.open(".heroku", 'w') { |file| file.write($app_name) }
+    end
+end
+
+
 # Configures the heroku project
-task :heroku => [ :herokucli ] do
-    # Fetch heroku account information
-    name = getInput("Enter the Heroku project name:")
+task :heroku => [ :herokucli, :herokuapp ] do
+    sh("heroku config:set --app #{$app_name} HEROKU_PROD=true")
     puts
 end
 
 
 # Configures the cloudant configuration
-task :cloudant => [ :herokucli ] do
+task :cloudant => [ :herokucli, :herokuapp ] do
     username = getInput("Please enter your Cloudant user name:")
     apiKey = getInput("Please enter your Cloudant API key:")
-    password = getInput("Please enter the password for that Cloudant API key:")
+    password = getInput("Please enter the Cloudant API key password:")
     database = getInput("Please enter your Cloudant database name:")
-    sh("heroku config:set " +
+    sh("heroku config:set --app #{$app_name} " +
         "CLOUDANT_USER=#{username} " +
         "CLOUDANT_KEY=#{apiKey} " +
         "CLOUDANT_PASSWORD=#{password} " +
@@ -79,9 +91,9 @@ end
 
 
 # Sets up the "secrect" key for this instance
-task :secret => [ :herokucli ] do
+task :secret => [ :herokucli, :herokuapp ] do
     key = SecureRandom.uuid
-    sh("heroku config:set SECRET_KEY=#{key}")
+    sh("heroku config:set --app #{$app_name} SECRET_KEY=#{key}")
     puts
 end
 
@@ -89,7 +101,7 @@ end
 # Initializes the heroku environment
 task :setup => [ :heroku, :secret, :cloudant ] do
     sh("heroku plugins:install https://github.com/heroku/heroku-deploy")
-    sh("heroku ps:scale web=1")
+    sh("heroku ps:scale --app #{$app_name} web=1")
 end
 
 
@@ -182,7 +194,7 @@ end
 
 
 # Deploys this site out to heroku
-task :deploy => [ :herokucli, :default ] do
-    sh("heroku deploy:war --war #{war}")
+task :deploy => [ :herokucli, :herokuapp, :default ] do
+    sh("heroku deploy:war --app #{$app_name} --war #{war}")
 end
 
