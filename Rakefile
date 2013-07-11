@@ -70,7 +70,9 @@ end
 
 # Configures the heroku project
 task :heroku => [ :herokucli, :herokuapp ] do
-    sh("heroku config:set --app #{$app_name} HEROKU_PROD=true")
+    sh("heroku config:set --app #{$app_name} " +
+        "HEROKU_PROD=true " +
+        "ADMIN_HOST=#{$app_name}.herokuapp.com")
     puts
 end
 
