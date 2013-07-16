@@ -17,6 +17,7 @@ Gem::Specification.new do |gem|
 
     gem.add_development_dependency('rake')
     gem.add_development_dependency('sass', '>= 3.2.0')
-    gem.add_development_dependency('rubyzip', '>= 0.9.9')
+    gem.add_development_dependency('bourbon', '>= 3.1.0')
+    gem.add_development_dependency('neat', '>= 1.3.0')
 end
 

@@ -120,7 +120,7 @@ task :sass do
     puts "Sass include dirs:"
     pp(includes)
 
-    Dir.glob('css/*')
+    Dir.glob('css/**/*')
         .select{ |file| [".sass", ".scss"].to_set.include?(File.extname(file)) }
         .reject{ |file| File.basename(file).start_with?("_") }
         .map do |file|
