@@ -16,6 +16,11 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.1/underscore-min.js"></script>
         <script src="https://login.persona.org/include.js"></script>
+        {{#if enableLogin}}
+            <script type="text/javascript">
+                window.loggedIn = {{#if email}}"{{email}}"{{else}}null{{/if}};
+            </script>
+        {{/if}}
         {{#js}}admin.js{{/js}}
     </body>
 </html>
