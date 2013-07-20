@@ -11,6 +11,8 @@ require 'pathname'
 require 'net/http'
 require 'fileutils'
 
+# Gets set to false when compiling for a deployment
+$debug = true
 
 # Asks for user input and returns the result
 def getInput ( question )
@@ -132,7 +134,10 @@ task :sass do
 
             engine = Sass::Engine.for_file(
                 file,
-                :syntax => :scss, :full_exception => true,
+                :style => $debug ? :nested : :compressed,
+                :line_numbers => $debug,
+                :syntax => :scss,
+                :full_exception => true,
                 :load_paths => includes
             )
 
@@ -189,14 +194,20 @@ task :jettyrunner do
     end
 end
 
+
+# Disables debug mode
+task :disable_debug do
+    $debug = false
+end
+
 # Compiles and runs the WAR
-task :start => [ :default, :jettyrunner ] do
+task :start => [ :disable_debug, :default, :jettyrunner ] do
     sh("java -jar #{$jetty_runner} #{war}")
 end
 
 
 # Deploys this site out to heroku
-task :deploy => [ :herokucli, :herokuapp, :default ] do
+task :deploy => [ :disable_debug, :herokucli, :herokuapp, :default ] do
     sh("heroku deploy:war --app #{$app_name} --war #{war}")
 end
 
