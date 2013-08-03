@@ -10,6 +10,7 @@ require 'securerandom'
 require 'pathname'
 require 'net/http'
 require 'fileutils'
+require 'typescript-node'
 
 # Gets set to false when compiling for a deployment
 $debug = true
@@ -146,6 +147,26 @@ task :sass do
 end
 
 
+# Compile the typescript
+task :typescript do
+    puts "Compiling TypeScript..."
+
+    Dir.glob('js/**/*.ts')
+        .reject{ |file| File.basename(file).start_with?("_") }
+        .map do |file|
+            withoutExt = file.chomp( File.extname(file) )
+            compileTo = "target/resources/#{withoutExt}.js"
+            FileUtils.mkpath( File.dirname(compileTo) )
+
+            puts "Compiling #{file} to #{compileTo}"
+
+            result = TypeScript::Node.compile_file( file )
+            fail result.stderr if result.exit_status != 0
+
+            File.open(compileTo, 'w') { |out| out.write( result.js ) }
+        end
+end
+
 # Cleans out all build artifacts
 task :clean do
     sh("sbt clean")
@@ -161,14 +182,13 @@ task :resources do
         FileUtils.cp_r(dir, "target/resources") if File.exists?(dir)
     end
 
-    copyResource( "js" )
     copyResource( "assets" )
     copyResource( "templates" )
 end
 
 
 # Builds the java WAR file
-task :package => [ :sass, :resources ] do
+task :package => [ :sass, :typescript, :resources ] do
     sh("sbt package-war")
     puts "Packaged: #{war}"
 end

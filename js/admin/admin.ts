@@ -1,3 +1,7 @@
+/// <reference path="_jquery.d.ts" />
+/// <reference path="_persona.d.ts" />
+
+interface Window { loggedIn: String; }
 
 /** Look for clicks on any login buttons */
 $(window.document).on('click', '.login-button', function (e) {
