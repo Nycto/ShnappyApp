@@ -1,30 +1,44 @@
 // Typing information for the Persona interface
 
-interface PersonaWatchOptions {
-    loggedInUser: String
-    onlogin: (String) => void
-    onlogout: () => void
-    onready?: () => void
-}
+declare module Persona {
 
-interface PersonaRequestOptions {
-    backgroundColor?: String
-    siteName?: String
-    siteLogo?: String
-    termsOfService?: String
-    privacyPolicy?: String
-    returnTo?: String
-    oncancel?: () => void
-}
+    export interface WatchOptions {
+        loggedInUser: String
+        onlogin: (String) => void
+        onlogout: () => void
+        onready?: () => void
+    }
 
-interface Persona {
-    watch( options: PersonaWatchOptions ): void
-    request( options: PersonaRequestOptions ): void
-    request(): void
-    logout(): void
+    export interface RequestOptions {
+        backgroundColor?: String
+        siteName?: String
+        siteLogo?: String
+        termsOfService?: String
+        privacyPolicy?: String
+        returnTo?: String
+        oncancel?: () => void
+    }
+
+    export interface GetOptions {
+        backgroundColor?: String
+        siteName?: String
+        siteLogo?: String
+        termsOfService?: String
+        privacyPolicy?: String
+    }
+
+    export interface Persona {
+        watch( options: WatchOptions ): void
+        request( options: RequestOptions ): void
+        request(): void
+        logout(): void
+        get( gotAssertion: (String) => void ): void
+        get( gotAssertion: (String) => void, options: GetOptions ): void
+    }
+
 }
 
 interface Navigator {
-    id: Persona
+    id: Persona.Persona
 }
 
