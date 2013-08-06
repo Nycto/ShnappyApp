@@ -2,3 +2,18 @@
 @import "admin/normalize";
 @import "admin/clearfix";
 
+#login {
+    width: 300px;
+    margin: 50px auto;
+    padding: 20px;
+    background: #fafafa;
+    text-align: center;
+    border-radius: 5px;
+
+    h3 {
+        font-size: 1em;
+        font-weight: normal;
+        margin: 0 0 20px 0;
+    }
+}
+
