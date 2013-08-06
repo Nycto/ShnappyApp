@@ -16,6 +16,7 @@ Gem::Specification.new do |gem|
     gem.authors     = "Some People"
 
     gem.add_development_dependency('rake')
+    gem.add_development_dependency('listen', '>= 1.2.2')
     gem.add_development_dependency('sass', '>= 3.2.0')
     gem.add_development_dependency('bourbon', '>= 3.1.0')
     gem.add_development_dependency('neat', '>= 1.3.0')

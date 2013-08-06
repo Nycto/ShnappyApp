@@ -11,6 +11,7 @@ require 'pathname'
 require 'net/http'
 require 'fileutils'
 require 'typescript-node'
+require 'listen'
 
 # Gets set to false when compiling for a deployment
 $debug = true
@@ -166,6 +167,37 @@ task :typescript do
             File.open(compileTo, 'w') { |out| out.write( result.js ) }
         end
 end
+
+
+# Listen for changes to Javascript and CSS, then rebuild
+task :watch => [ :sass, :typescript ] do
+    puts "Setting up watch..."
+
+    targets = ['css', 'js'].map do |file|
+        File.symlink?( file ) ? File.readlink( file ) : file
+    end
+
+    Listen.to!(targets) do |modified, added, removed|
+        joined = modified + added + removed
+
+        puts
+        puts "Recompiling..."
+        pp joined
+
+        if joined.any? { |file| File.extname(file) == ".scss" }
+            Rake::Task["sass"].reenable
+            Rake::Task["sass"].invoke
+        end
+
+        if joined.any? { |file| File.extname(file) == ".ts" }
+            Rake::Task["typescript"].reenable
+            Rake::Task["typescript"].invoke
+        end
+
+        puts "Finished at: " + Time.new.to_s
+    end
+end
+
 
 # Cleans out all build artifacts
 task :clean do
