@@ -170,12 +170,44 @@ end
 
 
 # Listen for changes to Javascript and CSS, then rebuild
-task :watch => [ :sass, :typescript ] do
+task :watch do
     puts "Setting up watch..."
+
+    def recompile( css, js )
+        if css
+            begin
+                Rake::Task["sass"].reenable
+                Rake::Task["sass"].invoke
+            rescue Sass::SyntaxError => err
+                puts
+                puts "Sass Syntax Error"
+                puts "  File: " + err.sass_filename
+                puts "  Line: " + err.sass_line.to_s
+                puts " Mixin: " + err.sass_mixin if err.sass_mixin
+            end
+        end
+
+        puts
+
+        if js
+            begin
+                Rake::Task["typescript"].reenable
+                Rake::Task["typescript"].invoke
+            rescue RuntimeError => err
+                puts
+                puts err
+            end
+        end
+
+        puts
+        puts "Finished at: " + Time.new.to_s
+    end
 
     targets = ['css', 'js'].map do |file|
         File.symlink?( file ) ? File.readlink( file ) : file
     end
+
+    recompile( true, true )
 
     Listen.to!(targets) do |modified, added, removed|
         joined = modified + added + removed
@@ -184,17 +216,10 @@ task :watch => [ :sass, :typescript ] do
         puts "Recompiling..."
         pp joined
 
-        if joined.any? { |file| File.extname(file) == ".scss" }
-            Rake::Task["sass"].reenable
-            Rake::Task["sass"].invoke
-        end
-
-        if joined.any? { |file| File.extname(file) == ".ts" }
-            Rake::Task["typescript"].reenable
-            Rake::Task["typescript"].invoke
-        end
-
-        puts "Finished at: " + Time.new.to_s
+        recompile(
+            joined.any? { |file| File.extname(file) == ".scss" },
+            joined.any? { |file| File.extname(file) == ".ts" },
+        )
     end
 end
 
