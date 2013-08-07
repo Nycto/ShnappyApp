@@ -2,18 +2,74 @@
 @import "admin/normalize";
 @import "admin/clearfix";
 
-.notice {
+$font-color: #222;
+
+html, body {
+    background: white;
+    color: $font-color;
+    font-family: Arial;
+}
+
+@mixin notice {
     width: 300px;
     margin: 50px auto;
+    background: #eee;
+    border-radius: 8px;
+}
+
+.notice {
+    @include notice;
     padding: 20px;
-    background: #fafafa;
     text-align: center;
-    border-radius: 5px;
 
     h3 {
         font-size: 1em;
         font-weight: normal;
         margin: 0 0 20px 0;
+    }
+}
+
+#sites {
+    @include notice;
+    padding: 20px 0;
+
+    h2 {
+        margin: 0 0 10px 0;
+        text-align: center;
+    }
+
+    ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        text-align: left;
+
+        li {
+            position: relative;
+
+            &:first-child a {
+                border-top: 1px solid #ccc;
+            }
+
+            a {
+                padding: 10px 20px;
+                display: block;
+                background: #ddd;
+                border-bottom: 1px solid #ccc;
+                text-decoration: none;
+                color: $font-color;
+
+                &:hover {
+                    background: #ccc;
+                }
+            }
+
+            button {
+                position: absolute;
+                right: 10px;
+                top: 7px;
+            }
+        }
     }
 }
 
