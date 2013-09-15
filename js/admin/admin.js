@@ -1,7 +1,3 @@
-/// <reference path="_jquery.d.ts" />
-/// <reference path="_persona.d.ts" />
-
-interface Window { loggedIn: String; }
 
 /** Look for clicks on any login buttons */
 $(window.document).on('click', '.login-button', function (e) {
@@ -17,7 +13,7 @@ if ( window.loggedIn !== undefined ) {
             $.ajax({
                 type: 'PUT',
                 url: '/admin/api/login',
-                data: {assertion: assertion},
+                data: {assertion: assertion}
             }).done(function () {
                 window.location.reload();
             }).fail(function () {

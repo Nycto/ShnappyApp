@@ -10,8 +10,9 @@ require 'securerandom'
 require 'pathname'
 require 'net/http'
 require 'fileutils'
-require 'typescript-node'
 require 'listen'
+require 'uglifier'
+require 'jshintrb'
 
 # Gets set to false when compiling for a deployment
 $debug = true
@@ -148,24 +149,44 @@ task :sass do
 end
 
 
-# Compile the typescript
-task :typescript do
-    puts "Compiling TypeScript..."
+# A helper method that finds javascript files, jshints them and figures out
+# where to put them, then hands off compilation to a helper method
+def processJS ( &compile )
+    reporter = Jshintrb::Reporter::Default.new
 
-    Dir.glob('js/**/*.ts')
-        .reject{ |file| File.basename(file).start_with?("_") }
-        .map do |file|
-            withoutExt = file.chomp( File.extname(file) )
-            compileTo = "target/resources/#{withoutExt}.js"
-            FileUtils.mkpath( File.dirname(compileTo) )
+    puts "Compiling JavaScript..."
+    Dir.glob('js/**/*.js').map do |file|
+        compileTo = "target/resources/#{file}"
+        FileUtils.mkpath( File.dirname(compileTo) )
 
-            puts "Compiling #{file} to #{compileTo}"
-
-            result = TypeScript::Node.compile_file( file )
-            fail result.stderr if result.exit_status != 0
-
-            File.open(compileTo, 'w') { |out| out.write( result.js ) }
+        puts "JSHinting #{file}"
+        errors = Jshintrb.lint( File.read(file) )
+        if errors.length > 0
+            puts
+            errors.map do |err|
+                puts ("  line %d, column %d: %s\n" +
+                    "    %s\n" +
+                    "    %s^\n") % [
+                        err['line'], err['character'], err['reason'],
+                        err['evidence'],
+                        "~" * (err['character'] - 1)
+                    ]
+            end
+            fail "JSHint failed"
         end
+
+        puts "  Compiling to #{compileTo}"
+
+        result = compile.call(file)
+
+        File.open(compileTo, 'w') { |out| out.write( result ) }
+    end
+end
+
+
+# Compile the JavaScript
+task :javascript do
+    processJS { |file| Uglifier.new.compile( File.read(file) ) }
 end
 
 
@@ -191,8 +212,7 @@ task :watch do
 
         if js
             begin
-                Rake::Task["typescript"].reenable
-                Rake::Task["typescript"].invoke
+                processJS { |file| File.read(file) }
             rescue RuntimeError => err
                 puts
                 puts err
@@ -218,7 +238,7 @@ task :watch do
 
         recompile(
             joined.any? { |file| File.extname(file) == ".scss" },
-            joined.any? { |file| File.extname(file) == ".ts" },
+            joined.any? { |file| File.extname(file) == ".js" },
         )
     end
 end
