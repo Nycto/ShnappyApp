@@ -4,72 +4,81 @@
 
 $font-color: #222;
 
+@mixin dull-link {
+    padding: 0;
+    display: block;
+    text-decoration: none;
+    color: $font-color;
+
+    &:hover {
+        color: #666;
+    }
+}
+
+@mixin button( $size: 30px ) {
+    @include dull-link;
+    height: $size;
+    width: $size;
+    font-size: $size - 10px;
+    text-align: center;
+    line-height: $size;
+}
+
+@mixin right {
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+
 html, body {
     background: white;
     color: $font-color;
     font-family: Arial;
 }
 
-@mixin notice {
-    width: 300px;
-    margin: 50px auto;
-    background: #eee;
-    border-radius: 8px;
+main {
+    position: relative;
 }
 
-.notice {
-    @include notice;
-    padding: 20px;
-    text-align: center;
-
-    h3 {
-        font-size: 1em;
-        font-weight: normal;
-        margin: 0 0 20px 0;
-    }
+h1, h2, h3 {
+    height: 30px;
+    line-height: 30px;
+    margin: 0 0 5px 0;
+    border-bottom: 1px dotted #eee;
 }
 
 #sites {
-    @include notice;
-    padding: 20px 0;
+    width: 500px;
+    margin: 50px auto;
 
-    h2 {
-        margin: 0 0 10px 0;
-        text-align: center;
-    }
-
-    ul {
-        list-style-type: none;
-        margin: 0;
-        padding: 0;
-        text-align: left;
-
-        li {
-            position: relative;
-
-            &:first-child a {
-                border-top: 1px solid #ccc;
-            }
-
-            a {
-                padding: 10px 20px;
-                display: block;
-                background: #ddd;
-                border-bottom: 1px solid #ccc;
-                text-decoration: none;
-                color: $font-color;
-
-                &:hover {
-                    background: #ccc;
-                }
-            }
-
-            button {
-                position: absolute;
-                right: 10px;
-                top: 7px;
-            }
-        }
+    .icon-plus {
+        @include button;
+        @include right;
     }
 }
+
+ul.edit-list {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    text-align: left;
+
+    li {
+        position: relative;
+        height: 30px;
+        line-height: 30px;
+        margin: 5px 0;
+
+        .icon-edit {
+            @include button;
+            @include right;
+        }
+    }
+
+    a {
+        @include dull-link;
+    }
+}
+
 
