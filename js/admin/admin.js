@@ -1,3 +1,6 @@
+/**
+ * Shnappy Admin Logic
+ */
 
 /** Look for clicks on any login buttons */
 $(window.document).on('click', '.login-button', function (e) {
@@ -29,5 +32,10 @@ if ( window.loggedIn !== undefined ) {
             });
         }
     });
+
+    $(document.body).on("click", ".signout", function () {
+        navigator.id.logout();
+    });
 }
+
 
