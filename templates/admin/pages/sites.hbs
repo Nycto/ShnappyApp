@@ -1,10 +1,13 @@
-<main id="sites">
+{{=[[ ]]=}}
+
+<main class="mini" ng-app="Shnappy" ng-controller="SiteList">
+
     <h2>Sites</h2>
-    <a href="#" class='button icon-plus'></a>
+    <a class='button icon-plus'></a>
     <ul class="edit-list">
-        <li>
-            <a href="#">Example</a>
-            <a href="#" class='button icon-edit'></a>
+        <li ng-repeat="site in sites">
+            <a>{{site.title}}</a>
+            <a class='button icon-edit'></a>
         </li>
     </ul>
 </main>

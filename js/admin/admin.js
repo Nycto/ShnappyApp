@@ -38,4 +38,20 @@ if ( window.loggedIn !== undefined ) {
     });
 }
 
+/**
+ * Admin interface
+ */
+var shnappy = angular.module('Shnappy', []);
+
+// Configure the URLs
+shnappy.config(['$routeProvider', function($routeProvider) {
+    $routeProvider
+        .when('/admin', {controller: "SiteList"});
+}]);
+
+shnappy.controller("SiteList", ["$scope", "$http", function ($scope, $http) {
+    $http.get("/admin/api/sites").success(function(data) {
+        $scope.sites = data;
+    });
+}]);
 

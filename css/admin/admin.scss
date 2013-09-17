@@ -41,6 +41,10 @@ html, body {
 }
 
 
+a {
+    cursor: pointer;
+}
+
 header {
     padding: 5px 20px;
     margin: 0 0 20px;
@@ -52,10 +56,6 @@ header {
     &, a {
         color: #666;
         text-decoration: none;
-    }
-
-    a {
-        cursor: pointer;
     }
 
     h1 {
@@ -76,14 +76,7 @@ main {
     position: relative;
 }
 
-h1, h2, h3 {
-    height: 30px;
-    line-height: 30px;
-    margin: 0 0 5px 0;
-    border-bottom: 1px dotted #eee;
-}
-
-#sites {
+main.mini {
     width: 500px;
     margin: 50px auto;
 
@@ -91,6 +84,13 @@ h1, h2, h3 {
         @include button;
         @include right;
     }
+}
+
+h2, h3 {
+    height: 30px;
+    line-height: 30px;
+    margin: 0 0 5px 0;
+    border-bottom: 1px dotted #eee;
 }
 
 ul.edit-list {
