@@ -38,10 +38,18 @@ if ( window.loggedIn !== undefined ) {
     });
 }
 
+if ( $("main.noLoad").length > 0 ) {
+    $("body").removeClass("loading");
+}
+
 /**
  * Admin interface
  */
 var shnappy = angular.module('Shnappy', []);
+
+shnappy.run(function () {
+    $("body").removeClass("loading");
+});
 
 // Configure the URLs
 shnappy.config(['$routeProvider', function($routeProvider) {
