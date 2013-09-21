@@ -52,6 +52,14 @@ a {
     cursor: pointer;
 }
 
+button {
+    padding: 5px 10px;
+
+    &:before {
+        margin-right: 10px;
+    }
+}
+
 header {
     padding: 5px 20px;
     margin: 0 0 20px;
@@ -101,7 +109,7 @@ h2, h3 {
     height: 30px;
     line-height: 30px;
     margin: 0 0 5px 0;
-    border-bottom: 1px dotted #eee;
+    border-bottom: 1px dotted #ddd;
 }
 
 ul.edit-list {
@@ -125,6 +133,76 @@ ul.edit-list {
     a {
         @include dull-link;
     }
+}
+
+form {
+
+    h2 {
+        margin-bottom: 20px;
+    }
+
+    fieldset {
+        position: relative;
+        margin: 0 0 15px 0;
+        padding: 0 0 15px;
+        border: none;
+
+        &.buttons {
+            text-align: right;
+        }
+    }
+
+    button {
+        margin-left: 20px;
+    }
+
+    button.positive {
+        color: #270;
+    }
+
+    button.negative {
+        color: #800;
+    }
+
+    label {
+        font-weight: bold;
+        display: block;
+        font-size: 20px;
+        line-height: 1.2em;
+        padding-bottom: 4px;
+    }
+
+    fieldset.list {
+        label {
+            border-bottom: 1px dotted #ddd;
+        }
+
+        ul {
+            margin: 0 40px 20px 20px;
+            padding: 0;
+        }
+
+        li {
+            margin-top: 20px;
+            list-style-type: none;
+            position: relative;
+        }
+
+        .icon-remove {
+            @include button;
+            position: absolute;
+            right: -40px;
+            top: 2px;
+        }
+    }
+
+    input {
+        border: 1px solid #ccc;
+        width: 100%;
+        padding: 8px 10px;
+        box-sizing: border-box;
+    }
+
 }
 
 

@@ -57,9 +57,66 @@ shnappy.config(['$routeProvider', function($routeProvider) {
         .when('/admin', {controller: "SiteList"});
 }]);
 
+/** View and edit site configuration */
 shnappy.controller("SiteList", ["$scope", "$http", function ($scope, $http) {
-    $http.get("/admin/api/sites").success(function(data) {
-        $scope.sites = data;
-    });
+
+    function getSites () {
+        $http.get("/admin/api/sites").success(function(data) {
+            $scope.sites = data;
+        });
+    }
+
+    getSites();
+
+    $scope.edit = function (data) {
+        $scope.editing = data ? angular.copy(data) : {
+            theme: "default",
+            hosts: []
+        };
+
+        $scope.editing.hosts = $scope.editing.hosts.map(function (val) {
+            return { value: val };
+        });
+    };
+
+    $scope.cancel = function () {
+        $scope.editing = null;
+    };
+
+    $scope.save = function () {
+        var data = $scope.editing;
+        data.hosts = data.hosts
+            .map(function (val) { return val.value.trim(); })
+            .filter(function (val) { return val !== ""; });
+
+        var request;
+        if ( data.siteID ) {
+            request = $http({
+                method: 'PATCH',
+                url: '/admin/api/sites/' + data.siteID,
+                data: data
+            });
+        }
+        else {
+            request = $http({
+                method: 'POST',
+                url: '/admin/api/sites',
+                data: data
+            });
+        }
+
+        request.success(function () {
+            $scope.editing = null;
+            getSites();
+        });
+    };
+
+    $scope.addHost = function () {
+        $scope.editing.hosts.push({ value: "" });
+    };
+
+    $scope.removeHost = function (index) {
+        $scope.editing.hosts.splice(index, 1);
+    };
 }]);
 
