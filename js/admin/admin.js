@@ -118,5 +118,16 @@ shnappy.controller("SiteList", ["$scope", "$http", function ($scope, $http) {
     $scope.removeHost = function (index) {
         $scope.editing.hosts.splice(index, 1);
     };
+
+    $scope.delete = function () {
+        if ( confirm("Are you sure you want to delete this site?") ) {
+            $http.delete(
+                '/admin/api/sites/' + $scope.editing.siteID
+            ).success(function () {
+                $scope.editing = null;
+                getSites();
+            });
+        }
+    };
 }]);
 
