@@ -38,18 +38,10 @@ if ( window.loggedIn !== undefined ) {
     });
 }
 
-if ( $("main.noLoad").length > 0 ) {
-    $("body").removeClass("loading");
-}
-
 /**
  * Admin interface
  */
 var shnappy = angular.module('Shnappy', []);
-
-shnappy.run(function () {
-    $("body").removeClass("loading");
-});
 
 /** Returns a route configuration */
 function route ( name ) {
