@@ -51,81 +51,114 @@ shnappy.run(function () {
     $("body").removeClass("loading");
 });
 
+/** Returns a route configuration */
+function route ( name ) {
+    return {
+        controller: name + "Ctrl",
+        template: function () {
+            var tplID = name + "Tpl";
+            var template = document.getElementById(tplID);
+            if ( !template )
+                throw "Could not find template: " + tplID;
+            return template.innerHTML;
+        }
+    };
+}
+
 // Configure the URLs
-shnappy.config(['$routeProvider', function($routeProvider) {
+shnappy.config([
+    '$routeProvider', '$locationProvider',
+    function($routeProvider, $locationProvider) {
+
+    $locationProvider.html5Mode(true);
+
     $routeProvider
-        .when('/admin', {controller: "SiteList"});
+        .when('/admin', route("SiteList"))
+        .when('/admin/sites', route("SiteList"))
+        .when('/admin/sites/:siteID', route("SiteEdit"));
 }]);
 
-/** View and edit site configuration */
-shnappy.controller("SiteList", ["$scope", "$http", function ($scope, $http) {
 
-    function getSites () {
-        $http.get("/admin/api/sites").success(function(data) {
-            $scope.sites = data;
-        });
+/** View the list of available sites */
+shnappy.controller("SiteListCtrl", [
+    "$scope", "$http",
+    function ($scope, $http) {
+
+    $http.get("/admin/api/sites").success(function(data) {
+        $scope.sites = data;
+    });
+}]);
+
+
+/** Edit a site */
+shnappy.controller("SiteEditCtrl", [
+    "$scope", "$http", "$routeParams", "$location",
+    function ($scope, $http, $routeParams, $location) {
+
+    if ( $routeParams.siteID && $routeParams.siteID !== "create" ) {
+        $scope.editing = true;
+
+        $http.get("/admin/api/sites/" + $routeParams.siteID)
+            .success(function(data) {
+                $scope.site = data;
+
+                $scope.site.hosts = $scope.site.hosts.map(function (val) {
+                    return { value: val };
+                });
+            });
+    }
+    else {
+        $scope.site = {
+            theme: "default",
+            hosts: [ { value: "" } ]
+        };
     }
 
-    getSites();
+    $scope.addHost = function () {
+        $scope.site.hosts.push({ value: "" });
+    };
 
-    $scope.edit = function (data) {
-        $scope.editing = data ? angular.copy(data) : {
-            theme: "default",
-            hosts: []
-        };
-
-        $scope.editing.hosts = $scope.editing.hosts.map(function (val) {
-            return { value: val };
-        });
+    $scope.removeHost = function (index) {
+        $scope.site.hosts.splice(index, 1);
     };
 
     $scope.cancel = function () {
-        $scope.editing = null;
+        $location.url("/admin/sites");
     };
 
     $scope.save = function () {
-        var data = $scope.editing;
-        data.hosts = data.hosts
+        var toSave = $scope.site;
+        toSave.hosts = toSave.hosts
             .map(function (val) { return val.value.trim(); })
             .filter(function (val) { return val !== ""; });
 
         var request;
-        if ( data.siteID ) {
+        if ( toSave.siteID ) {
             request = $http({
                 method: 'PATCH',
-                url: '/admin/api/sites/' + data.siteID,
-                data: data
+                url: '/admin/api/sites/' + toSave.siteID,
+                data: toSave
             });
         }
         else {
             request = $http({
                 method: 'POST',
                 url: '/admin/api/sites',
-                data: data
+                data: toSave
             });
         }
 
         request.success(function () {
-            $scope.editing = null;
-            getSites();
+            $location.url("/admin/sites");
         });
-    };
-
-    $scope.addHost = function () {
-        $scope.editing.hosts.push({ value: "" });
-    };
-
-    $scope.removeHost = function (index) {
-        $scope.editing.hosts.splice(index, 1);
     };
 
     $scope.delete = function () {
         if ( confirm("Are you sure you want to delete this site?") ) {
             $http.delete(
-                '/admin/api/sites/' + $scope.editing.siteID
+                '/admin/api/sites/' + $scope.site.siteID
             ).success(function () {
-                $scope.editing = null;
-                getSites();
+                $location.url("/admin/sites");
             });
         }
     };

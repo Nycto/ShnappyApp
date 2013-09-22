@@ -1,54 +1,52 @@
 {{=[[ ]]=}}
 
-<main class="mini" ng-app="Shnappy" ng-controller="SiteList">
+<main class="mini" ng-app="Shnappy" ng-view></main>
 
-    <section ng-if="!editing">
-        <h2>Sites</h2>
-        <a class='button icon-plus' ng-click="edit()"></a>
-        <ul class="edit-list">
-            <li ng-repeat="site in sites">
-                <a href="/admin/sites/{{site.siteID}}">{{site.title}}</a>
-                <a class='button icon-edit' ng-click="edit(site)"></a>
-            </li>
-        </ul>
-    </section>
+<script type="text/html" id="SiteListTpl">
+    <h2>Sites</h2>
+    <a href="/admin/sites/create" class='button icon-plus'></a>
+    <ul class="edit-list">
+        <li ng-repeat="site in sites">
+            <a href="/admin/sites/{{site.siteID}}">{{site.title}}</a>
+            <a href="/admin/sites/{{site.siteID}}" class='button icon-edit'></a>
+        </li>
+    </ul>
+</script>
 
-    <section ng-if="editing">
-        <form name="siteEdit" ng-submit="save()">
-            <h2 ng-if="editing.siteID">Edit</h2>
-            <h2 ng-if="!editing.siteID">Create</h2>
+<script type="text/html" id="SiteEditTpl">
+    <form name="siteEdit" ng-submit="save()" ng-if="site">
+        <h2 ng-if="editing">Edit</h2>
+        <h2 ng-if="!editing">Create</h2>
 
-            <fieldset>
-                <label for="site-title">Title</label>
-                <input id="site-title" ng-model="editing.title" required>
-            </fieldset>
+        <fieldset>
+            <label for="site-title">Title</label>
+            <input id="site-title" ng-model="site.title" required>
+        </fieldset>
 
-            <fieldset>
-                <label for="site-theme">Theme</label>
-                <input id="site-theme" ng-model="editing.theme" required>
-            </fieldset>
+        <fieldset>
+            <label for="site-theme">Theme</label>
+            <input id="site-theme" ng-model="site.theme" required>
+        </fieldset>
 
-            <fieldset class="list">
-                <label>Hosts</label>
-                <a class='button icon-plus' ng-click="addHost()"></a>
-                <ul>
-                    <li ng-repeat="host in editing.hosts">
-                        <input type="text" ng-model="host.value">
-                        <a class="button icon-remove"
-                            ng-click="removeHost(index)"></a>
-                    </li>
-                </ul>
-            </fieldset>
+        <fieldset class="list">
+            <label>Hosts</label>
+            <a class='button icon-plus' ng-click="addHost()"></a>
+            <ul>
+                <li ng-repeat="host in site.hosts">
+                    <input type="text" ng-model="host.value">
+                    <a class="button icon-remove"
+                        ng-click="removeHost(index)"></a>
+                </li>
+            </ul>
+        </fieldset>
 
-            <fieldset class="buttons">
-                <button class="icon-trash negative" type="button"
-                    ng-if="editing.siteID"
-                    ng-click="delete()">Delete Site</button>
-                <button class="icon-remove" type="button"
-                    ng-click="cancel()">Cancel</button>
-                <button type="submit" class="icon-save positive">Save</button>
-            </fieldset>
-        </form>
-    </section>
+        <fieldset class="buttons">
+            <button class="icon-trash negative" type="button"
+                ng-if="editing" ng-click="delete()">Delete Site</button>
+            <button class="icon-remove" type="button"
+                ng-click="cancel()">Cancel</button>
+            <button type="submit" class="icon-save positive">Save</button>
+        </fieldset>
+    </form>
+</script>
 
-</main>
