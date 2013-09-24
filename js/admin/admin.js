@@ -71,6 +71,55 @@ shnappy.config([
 }]);
 
 
+/** A central error registry */
+shnappy.service('errors', ['$rootScope', function ($rootScope) {
+    this._error = null;
+    this.error = function ( error ) {
+        this._error = error;
+        $rootScope.$broadcast("error", error);
+    };
+    this.onError = function ( callback ) {
+        $rootScope.$on("error", callback);
+        if ( this._error ) {
+            $rootScope.$apply(function () {
+                callback(this._error);
+            });
+        }
+    };
+}]);
+
+/** Global http error handler */
+shnappy.config(['$httpProvider', function($httpProvider) {
+    $httpProvider.interceptors.push(['$q', 'errors', function ($q, errors) {
+        return {
+            'responseError': function (responseError) {
+                if ( responseError.data.message )
+                    errors.error( responseError.data.message );
+                else if ( responseError.status > 0 )
+                    errors.error( "Request error: " + responseError.status );
+                else
+                    errors.error( "Request error" );
+
+                return $q.reject(responseError);
+            }
+        };
+    }]);
+}]);
+
+/** A directive for displaying the most recent error */
+shnappy.directive('recentError', ['errors', function (errors) {
+    return {
+        restrict: 'A',
+        link: function (scope, elem) {
+            elem.hide();
+            errors.onError(function (event, err) {
+                elem.text( err ).show();
+            });
+        }
+    };
+}]);
+
+
 /** View the list of available sites */
 shnappy.controller("SiteListCtrl", [
     "$scope", "$http",
