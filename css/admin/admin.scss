@@ -1,14 +1,13 @@
-@import "admin/login";
 @import "admin/normalize";
+@import "admin/typography";
+@import "admin/login";
 @import "admin/clearfix";
-
-$font-color: #222;
 
 @mixin dull-link {
     padding: 0;
     display: block;
     text-decoration: none;
-    color: $font-color;
+    color: #222;
 
     &:hover {
         color: #666;
@@ -34,8 +33,6 @@ $font-color: #222;
 
 html, body {
     background: white;
-    color: $font-color;
-    font-family: Arial;
     margin: 0;
     padding: 0;
 }
@@ -70,16 +67,24 @@ header {
     }
 
     h1 {
-        font-size: 18px;
+        font-size: 1.4em;
+        line-height: 1.364em;
+        height: 1.35em;
         margin: 0;
         padding: 0;
         float: left;
     }
 
     .signout, .loggedInAs {
-        float: right;
-        font-size: 12px;
+        font-size: 0.875em;
+        line-height: 2.3em;
+        height: 2.143em;
+        display: inline-block;
         margin-left: 40px;
+    }
+
+    .signout, .loggedInAs {
+        float: right;
     }
 }
 
@@ -98,9 +103,7 @@ main.mini {
 }
 
 h2, h3 {
-    height: 30px;
-    line-height: 30px;
-    margin: 0 0 5px 0;
+    margin: 0 0 0.4em 0;
     border-bottom: 1px dotted #ddd;
 }
 
@@ -159,7 +162,7 @@ form {
     label {
         font-weight: bold;
         display: block;
-        font-size: 20px;
+        font-size: 1.5em;
         line-height: 1.2em;
         padding-bottom: 4px;
     }
