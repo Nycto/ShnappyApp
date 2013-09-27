@@ -120,6 +120,27 @@ shnappy.directive('recentError', ['errors', function (errors) {
 }]);
 
 
+/**
+ * Converts a list of strings to a list of objects
+ */
+function toObjList ( strings ) {
+    return strings.map(function (val) {
+        return { value: val };
+    });
+}
+
+/**
+ * Converts a list of objects back to a list of strings
+ */
+function toStrList ( objects ) {
+    return objects.map(function (val) {
+        return val.value.trim();
+    }).filter(function (val) {
+        return val !== "";
+    });
+}
+
+
 /** View the list of available sites */
 shnappy.controller("SiteListCtrl", [
     "$scope", "$http",
@@ -142,10 +163,7 @@ shnappy.controller("SiteEditCtrl", [
         $http.get("/admin/api/sites/" + $routeParams.siteID)
             .success(function(data) {
                 $scope.site = data;
-
-                $scope.site.hosts = $scope.site.hosts.map(function (val) {
-                    return { value: val };
-                });
+                $scope.site.hosts = toObjList( $scope.site.hosts );
             });
     }
     else {
@@ -169,9 +187,7 @@ shnappy.controller("SiteEditCtrl", [
 
     $scope.save = function () {
         var toSave = $scope.site;
-        toSave.hosts = toSave.hosts
-            .map(function (val) { return val.value.trim(); })
-            .filter(function (val) { return val !== ""; });
+        toSave.hosts = toStrList( toSave.hosts );
 
         var request;
         if ( toSave.siteID ) {
