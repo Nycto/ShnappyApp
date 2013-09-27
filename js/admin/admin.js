@@ -88,6 +88,11 @@ shnappy.service('errors', ['$rootScope', function ($rootScope) {
             });
         }
     };
+
+    $rootScope.$on('$routeChangeStart', function() {
+        this.error(null);
+    }.bind(this));
+
 }]);
 
 /** Global http error handler */
@@ -115,7 +120,10 @@ shnappy.directive('recentError', ['errors', function (errors) {
         link: function (scope, elem) {
             elem.hide();
             errors.onError(function (event, err) {
-                elem.text( err ).show();
+                if ( err )
+                    elem.text( err ).show();
+                else
+                    elem.hide();
             });
         }
     };
