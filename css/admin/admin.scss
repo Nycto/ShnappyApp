@@ -159,16 +159,21 @@ form {
         color: #800;
     }
 
-    label {
+    fieldset > label {
         font-weight: bold;
         display: block;
-        font-size: 1.5em;
+        font-size: 1.2em;
         line-height: 1.2em;
         padding-bottom: 4px;
     }
 
+    .terse label {
+        display: inline-block;
+        margin-right: 20px;
+    }
+
     fieldset.list {
-        label {
+        & > label {
             border-bottom: 1px dotted #ddd;
         }
 
@@ -196,6 +201,10 @@ form {
         width: 100%;
         padding: 8px 10px;
         box-sizing: border-box;
+
+        &[type=checkbox] {
+            width: auto;
+        }
     }
 
 }

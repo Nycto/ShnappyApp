@@ -1,0 +1,59 @@
+{{=[[ ]]=}}
+
+<main class="mini" ng-app="Shnappy" ng-cloak>
+    <p recent-error class="error"></p>
+    <section ng-view></section>
+</main>
+
+<script type="text/html" id="UserListTpl">
+    <h2>Users</h2>
+    <a href="/admin/users/create" class='button icon-plus'></a>
+    <ul class="edit-list">
+        <li ng-repeat="user in users">
+            <a href="/admin/users/{{user.userID}}">{{user.name}}</a>
+            <a href="/admin/users/{{user.userID}}" class='button icon-edit'></a>
+        </li>
+    </ul>
+</script>
+
+<script type="text/html" id="UserEditTpl">
+    <form name="userEdit" ng-submit="save()" ng-if="user">
+        <h2 ng-if="editing">Edit</h2>
+        <h2 ng-if="!editing">Create</h2>
+
+        <fieldset>
+            <label for="user-name">Name</label>
+            <input id="user-name" ng-model="user.name" required>
+        </fieldset>
+
+        <fieldset>
+            <label for="user-email">Email</label>
+            <input id="user-email" ng-model="user.email" required>
+        </fieldset>
+
+        <fieldset class="terse">
+            <label for="user-admin">Is Admin?</label>
+            <input id="user-admin" ng-model="user.isAdmin" type="checkbox">
+        </fieldset>
+
+        <fieldset class="list" ng-if="sites && !user.isAdmin">
+            <label>Site Access</label>
+            <ul>
+                <li ng-repeat="site in sites">
+                <input type="checkbox" id="site-{{site.siteID}}"
+                    ng-model="access[site.siteID]">
+                    <label for="site-{{site.siteID}}">{{site.title}}</label>
+                </li>
+            </ul>
+        </fieldset>
+
+        <fieldset class="buttons">
+            <button class="icon-trash negative" type="button"
+                ng-if="editing" ng-click="delete()">Delete User</button>
+            <button class="icon-remove" type="button"
+                ng-click="cancel()">Cancel</button>
+            <button type="submit" class="icon-save positive">Save</button>
+        </fieldset>
+    </form>
+</script>
+

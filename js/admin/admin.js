@@ -67,7 +67,9 @@ shnappy.config([
     $routeProvider
         .when('/admin', route("SiteList"))
         .when('/admin/sites', route("SiteList"))
-        .when('/admin/sites/:siteID', route("SiteEdit"));
+        .when('/admin/sites/:siteID', route("SiteEdit"))
+        .when('/admin/users', route("UserList"))
+        .when('/admin/users/:userID', route("UserEdit"));
 }]);
 
 
@@ -216,6 +218,83 @@ shnappy.controller("SiteEditCtrl", [
                 '/admin/api/sites/' + $scope.site.siteID
             ).success(function () {
                 $location.url("/admin/sites");
+            });
+        }
+    };
+}]);
+
+
+/** View the list of users */
+shnappy.controller("UserListCtrl", [
+    "$scope", "$http",
+    function ($scope, $http) {
+
+    $http.get("/admin/api/users").success(function(data) {
+        $scope.users = data;
+    });
+}]);
+
+/** Edit/Create a user */
+shnappy.controller("UserEditCtrl", [
+    "$scope", "$http", "$routeParams", "$location",
+    function ($scope, $http, $routeParams, $location) {
+
+    if ( $routeParams.userID && $routeParams.userID !== "create" ) {
+        $scope.editing = true;
+
+        $http.get("/admin/api/users/" + $routeParams.userID)
+            .success(function(data) {
+                $scope.user = data;
+                $scope.access = {};
+                data.sites.map(function (siteID) {
+                    $scope.access[siteID] = true;
+                });
+            });
+    }
+    else {
+        $scope.user = {};
+        $scope.access = {};
+    }
+
+    $http.get("/admin/api/sites").success(function(data) {
+        $scope.sites = data;
+    });
+
+    $scope.save = function () {
+        var user = angular.copy($scope.user);
+        user.sites = Object.keys($scope.access)
+            .filter(function (siteID) { return $scope.access[siteID]; })
+            .map(function (siteID) { return siteID; });
+
+        var request;
+        if ( user.userID ) {
+            request = $http({
+                method: 'PATCH',
+                url: "/admin/api/users/" + user.userID,
+                data: user
+            });
+        }
+        else {
+            request = $http({
+                method: 'POST',
+                url: '/admin/api/users',
+                data: user
+            });
+        }
+
+        request.success(function () { $location.url("/admin/users"); });
+    };
+
+    $scope.cancel = function () {
+        $location.url("/admin/users");
+    };
+
+    $scope.delete = function () {
+        if ( confirm("Are you sure you want to delete this user?") ) {
+            $http.delete(
+                '/admin/api/users/' + $scope.user.userID
+            ).success(function () {
+                $location.url("/admin/users");
             });
         }
     };
