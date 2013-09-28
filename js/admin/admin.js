@@ -43,18 +43,25 @@ if ( window.loggedIn !== undefined ) {
  */
 var shnappy = angular.module('Shnappy', []);
 
-/** Returns a route configuration */
-function route ( name ) {
-    return {
-        controller: name + "Ctrl",
-        template: function () {
-            var tplID = name + "Tpl";
-            var template = document.getElementById(tplID);
-            if ( !template )
-                throw "Could not find template: " + tplID;
-            return template.innerHTML;
+/**
+ * Decorates the route provider to only list routes where the template exists
+ * within the current page load.
+ */
+function route ( $routeProvider ) {
+    var iface = {};
+    iface.when = function (path, name) {
+        var template = document.getElementById(name + "Tpl");
+        if ( template ) {
+            $routeProvider.when(path, {
+                controller: name + "Ctrl",
+                template: function () {
+                    return template.innerHTML;
+                }
+            });
         }
+        return iface;
     };
+    return iface;
 }
 
 // Configure the URLs
@@ -64,12 +71,12 @@ shnappy.config([
 
     $locationProvider.html5Mode(true);
 
-    $routeProvider
-        .when('/admin', route("SiteList"))
-        .when('/admin/sites', route("SiteList"))
-        .when('/admin/sites/:siteID', route("SiteEdit"))
-        .when('/admin/users', route("UserList"))
-        .when('/admin/users/:userID', route("UserEdit"));
+    route( $routeProvider )
+        .when('/admin', "SiteList")
+        .when('/admin/sites', "SiteList")
+        .when('/admin/sites/:siteID', "SiteEdit")
+        .when('/admin/users', "UserList")
+        .when('/admin/users/:userID', "UserEdit");
 }]);
 
 
