@@ -35,6 +35,7 @@ html, body {
     background: white;
     margin: 0;
     padding: 0;
+    min-width: 800px;
 }
 
 [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
@@ -90,11 +91,12 @@ header {
 
 main {
     position: relative;
+    margin: 20px;
 }
 
 main.mini {
     width: 500px;
-    margin: 50px auto;
+    margin: 20px auto;
 
     .icon-plus {
         @include button;
@@ -102,7 +104,7 @@ main.mini {
     }
 }
 
-h2, h3 {
+h2, h3, h4 {
     margin: 0 0 0.4em 0;
     border-bottom: 1px dotted #ddd;
 }
@@ -130,6 +132,14 @@ ul.edit-list {
     }
 }
 
+.positive {
+    color: #270;
+}
+
+.negative {
+    color: #800;
+}
+
 form {
 
     h2 {
@@ -149,14 +159,6 @@ form {
 
     button {
         margin-left: 20px;
-    }
-
-    button.positive {
-        color: #270;
-    }
-
-    button.negative {
-        color: #800;
     }
 
     fieldset > label {
@@ -196,14 +198,24 @@ form {
         }
     }
 
-    input {
+    input, textarea {
         border: 1px solid #ccc;
         width: 100%;
         padding: 8px 10px;
         box-sizing: border-box;
+    }
 
-        &[type=checkbox] {
-            width: auto;
+    input[type=checkbox] {
+        width: auto;
+    }
+
+    aside {
+        text-align: right;
+        font-size: .8em;
+        padding: 0 0 5px 0;
+
+        &, a {
+            color: #999;
         }
     }
 
@@ -215,6 +227,120 @@ form {
     border: 2px solid #fbc2c4;
     padding: 0.8em;
     margin: 0 0 1em 0;
+}
+
+.content-list {
+    width: 300px;
+    float: left;
+
+    ul {
+        padding: 0;
+        margin: 0;
+    }
+
+    .nav-set {
+        margin-bottom: 30px;
+    }
+
+    .content {
+        display: block;
+        border-left: 3px solid #eee;
+        background: #fafafa;
+        margin: 0 0 5px 0;
+        padding: 5px;
+        color: #222;
+        text-decoration: none;
+        white-space: nowrap;
+        position: relative;
+
+        &:hover {
+            color: #666;
+            background: #f6f6f6;
+            border-left-color: #92cae4;
+        }
+    }
+
+    .editing .content {
+        color: #666;
+        background: #f9f9f9;
+        border-left-color: #d5edf8;
+    }
+
+    .title, .preview {
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .title {
+        display:block;
+
+        &:before {
+            content: " ";
+            font-family: FontAwesome;
+            color: #bbb;
+
+            display: inline-block;
+            width: 15px;
+            margin-right: 5px;
+        }
+    }
+
+    .page .title:before {
+        content: "\f016";
+    }
+
+    .link .title:before {
+        content: "\f0c1";
+    }
+
+    .preview {
+        margin-left: 20px;
+        font-size: .8em;
+        color: #aaa;
+    }
+
+    .index {
+        padding-right: 25px;
+
+        &:after {
+            font-family: FontAwesome;
+            content: "\f015";
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            color: #aaa;
+        }
+    }
+
+    .add {
+        @include dull-link;
+        padding: 10px 0 0 8px;
+
+        &:before {
+            padding-right: 10px;
+            content: "\f067";
+            font-family: FontAwesome;
+        }
+    }
+}
+
+.content-edit {
+    margin-left: 350px;
+    max-width: 800px;
+
+    textarea {
+        min-height: 200px;
+    }
+}
+
+.saved {
+    @extend .positive;
+    display: none;
+    &:after {
+        font-family: FontAwesome;
+        content: "\F058";
+        padding-left: 10px;
+    }
 }
 
 

@@ -10,7 +10,7 @@
     <a href="/admin/sites/create" class='button icon-plus'></a>
     <ul class="edit-list">
         <li ng-repeat="site in sites">
-            <a href="/admin/sites/{{site.siteID}}">{{site.title}}</a>
+            <a href="/admin/sites/{{site.siteID}}/content" target="_self">{{site.title}}</a>
             <a href="/admin/sites/{{site.siteID}}" class='button icon-edit'></a>
         </li>
     </ul>

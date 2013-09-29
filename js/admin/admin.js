@@ -44,20 +44,29 @@ if ( window.loggedIn !== undefined ) {
 var shnappy = angular.module('Shnappy', []);
 
 /**
+ * Returns the content for a template by its ID
+ */
+function getTemplate ( id ) {
+    var elem = document.getElementById(id);
+    if ( !elem ) throw "Could not find template: " + id;
+    return elem.innerHTML;
+}
+
+/**
  * Decorates the route provider to only list routes where the template exists
  * within the current page load.
  */
 function route ( $routeProvider ) {
     var iface = {};
-    iface.when = function (path, name) {
+    iface.when = function (path, name, options) {
         var template = document.getElementById(name + "Tpl");
         if ( template ) {
-            $routeProvider.when(path, {
+            $routeProvider.when(path, angular.extend({
                 controller: name + "Ctrl",
                 template: function () {
                     return template.innerHTML;
                 }
-            });
+            }, options || {}));
         }
         return iface;
     };
@@ -76,7 +85,9 @@ shnappy.config([
         .when('/admin/sites', "SiteList")
         .when('/admin/sites/:siteID', "SiteEdit")
         .when('/admin/users', "UserList")
-        .when('/admin/users/:userID', "UserEdit");
+        .when('/admin/users/:userID', "UserEdit")
+        .when('/admin/sites/:siteID/content', "Content",
+            { reloadOnSearch: false });
 }]);
 
 
@@ -311,6 +322,128 @@ shnappy.controller("UserEditCtrl", [
             ).success(function () {
                 $location.url("/admin/users");
             });
+        }
+    };
+}]);
+
+
+
+/** Returns the title of a piece of content */
+shnappy.filter('contentTitle', function() {
+    return function(content) {
+        return content.title || content.text;
+    };
+});
+
+/** Generates a preview blurb for a piece of content */
+shnappy.filter('contentPreview', function() {
+    return function(content) {
+        if ( content.slug )
+            return "/" + content.slug;
+        else if ( content.url )
+            return content.url;
+    };
+});
+
+/** Returns only content that has a direct link */
+shnappy.filter('linked', function() {
+    return function( content ) {
+        return (content || []).filter(function (item) {
+            return item.navSort;
+        });
+    };
+});
+
+/** Returns only unlinked content */
+shnappy.filter('unlinked', function() {
+    return function( content ) {
+        return (content || []).filter(function (item) {
+            return !item.navSort;
+        });
+    };
+});
+
+/** Returns a list of CSS classes to attach to a content link */
+shnappy.filter('contentClasses', function() {
+    return function(content, scope) {
+        var classes = [ content.type ];
+
+        if ( scope.index && scope.index === content.contentID )
+            classes.push("index");
+
+        return classes.join(' ');
+    };
+});
+
+/** Allows for editing a site */
+shnappy.controller("ContentCtrl", [
+    "$rootScope", "$scope", "$http", "$routeParams", "$location",
+    function ($rootScope, $scope, $http, $routeParams, $location) {
+
+    $http.get("/admin/api/sites/" + $routeParams.siteID + "/content")
+        .success(function (data) {
+            $scope.content = data;
+        });
+
+    $http.get("/admin/api/sites/" + $routeParams.siteID + "/index")
+        .success(function (data) {
+            $scope.index = data.contentID;
+        });
+
+    // Shows the edit form for a piece of content
+    function edit( contentID ) {
+        if ( contentID ) {
+            $http.get("/admin/api/content/" + contentID)
+                .success(function (data) {
+                    $scope.editing = Shnappy.Content.parse( data );
+                });
+        }
+        else {
+            $scope.editing = null;
+        }
+    }
+
+    $scope.edit = function ( item ) {
+        $location.search( item.contentID );
+        edit( item.contentID );
+    };
+
+    // If a contentID was specified in the query, load it up for editing
+    edit( Object.keys( $location.search() )[0] );
+
+    $scope.save = function () {
+        $http({
+            method: 'PATCH',
+            url: "/admin/api/content/" + $scope.editing.contentID,
+            data: $scope.editing.getJson()
+        }).success(function () {
+            $(".saved").show().fadeOut(2000);
+        });
+    };
+}]);
+
+/** Displays a form to edit a given page */
+shnappy.directive('edit', ['$compile', function ($compile) {
+    return {
+        restrict: 'E',
+        scope: { content: '=' },
+        link: function (scope, elem) {
+            var tpl = getTemplate( "Content-" + scope.content.getType() );
+            var child = scope.$new();
+            child.content = scope.content.data;
+            elem.replaceWith( $compile(tpl)(child) );
+        }
+    };
+}]);
+
+/** A for rendering the edit a specific component */
+shnappy.directive('component', ['$compile', function ($compile) {
+    return {
+        restrict: 'E',
+        scope: { component: '=' },
+        link: function (scope, elem) {
+            var tpl = getTemplate( "Component-" + scope.component.getType() );
+            elem.replaceWith( $compile(tpl)(scope) );
         }
     };
 }]);

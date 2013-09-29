@@ -1,0 +1,78 @@
+{{=[[ ]]=}}
+
+<main ng-app="Shnappy" ng-cloak>
+    <p recent-error class="error"></p>
+    <section ng-view></section>
+</main>
+
+<script type="text/html" id="ContentTpl">
+    <nav class="content-list" ng-if="content">
+        <div class='nav-set'>
+            <h4>Main Navigation</h4>
+            <ul>
+                <li ng-repeat="item in content | linked">
+                    <a ng-click='edit(item)'
+                        class='content {{item | contentClasses:this}}'>
+
+                        <span class="title">{{item | contentTitle}}</span>
+                        <span class="preview">{{item | contentPreview}}</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class='nav-set'>
+            <h4>Not Linked</h4>
+            <ul>
+                <li ng-repeat="item in content | unlinked">
+                    <a ng-click='edit(item)'
+                        class='content {{item | contentClasses:this}}'>
+
+                        <span class="title">{{item | contentTitle}}</span>
+                        <span class="preview">{{item | contentPreview}}</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <form ng-submit="save()" ng-if="editing" class="content-edit">
+        <fieldset class="buttons">
+            <span class='saved'>Saved!</span>
+            <button type="submit" class="icon-save positive">Save</button>
+        </fieldset>
+
+        <edit content="editing"></edit>
+    </form>
+</script>
+
+<script type="text/html" id="Content-link">
+    <fieldset>
+        <label for="link-text">Text</label>
+        <input id="link-text" ng-model="content.text" required>
+    </fieldset>
+    <fieldset>
+        <label for="link-url">URL</label>
+        <input id="link-url" ng-model="content.url" required>
+    </fieldset>
+</script>
+
+<script type="text/html" id="Content-page">
+    <fieldset>
+        <input id="page-title" ng-model="content.title" required>
+    </fieldset>
+    <component component="component"
+        ng-repeat="component in content.content"></component>
+</script>
+
+<script type="text/html" id="Component-markdown">
+    <fieldset>
+        <aside>
+            <a href='http://daringfireball.net/projects/markdown/syntax'>
+                This field is formatted using markdown
+            </a>
+        </aside>
+        <textarea class='markdown' ng-model="component.content"></textarea>
+    </fieldset>
+</script>
+
