@@ -13,6 +13,7 @@ require 'fileutils'
 require 'listen'
 require 'uglifier'
 require 'jshintrb'
+require 'typescript-node'
 
 # Gets set to false when compiling for a deployment
 $debug = true
@@ -154,11 +155,8 @@ end
 def processJS ( &compile )
     reporter = Jshintrb::Reporter::Default.new
 
-    puts "Compiling JavaScript..."
-    Dir.glob('js/**/*.js').map do |file|
-        compileTo = "target/resources/#{file}"
-        FileUtils.mkpath( File.dirname(compileTo) )
-
+    # Executes JSHint on a file and returns its content
+    def jsHint ( file )
         puts "JSHinting #{file}"
         errors = Jshintrb.lint( File.read(file) )
         if errors.length > 0
@@ -175,18 +173,43 @@ def processJS ( &compile )
             fail "JSHint failed"
         end
 
+        File.read(file)
+    end
+
+    # Compiles a typescript file
+    def compileTS ( file )
+        puts "Compiling #{file}"
+        result = TypeScript::Node.compile_file( file )
+        fail result.stderr if result.exit_status != 0
+        result.js
+    end
+
+    puts "Compiling JavaScript..."
+    Dir.glob('js/**/*').map do |file|
+        next unless File.file?( file )
+
+        compileTo = "target/resources/#{file.chomp(File.extname(file))}.js"
+        FileUtils.mkpath( File.dirname(compileTo) )
+
+        if ( File.extname(file) == ".ts" )
+            next if File.basename(file).start_with?("_")
+            content = compileTS( file )
+        else
+            content = jsHint( file )
+        end
+
         puts "  Compiling to #{compileTo}"
 
-        result = compile.call(file)
-
-        File.open(compileTo, 'w') { |out| out.write( result ) }
+        File.open(compileTo, 'w') do |out|
+            out.write( compile.call( content ) )
+        end
     end
 end
 
 
 # Compile the JavaScript
 task :javascript do
-    processJS { |file| Uglifier.new.compile( File.read(file) ) }
+    processJS { |js| Uglifier.new.compile( js ) }
 end
 
 
@@ -212,7 +235,7 @@ task :watch do
 
         if js
             begin
-                processJS { |file| File.read(file) }
+                processJS { |js| js }
             rescue RuntimeError => err
                 puts
                 puts err
@@ -238,7 +261,7 @@ task :watch do
 
         recompile(
             joined.any? { |file| File.extname(file) == ".scss" },
-            joined.any? { |file| File.extname(file) == ".js" },
+            joined.any? { |file| [".js", ".ts"].include? File.extname(file) }
         )
     end
 end

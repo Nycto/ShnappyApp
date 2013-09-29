@@ -22,5 +22,6 @@ Gem::Specification.new do |gem|
     gem.add_development_dependency('neat', '>= 1.3.0')
     gem.add_development_dependency('uglifier', '>= 2.2.1')
     gem.add_development_dependency('jshintrb', '>= 0.2.4')
+    gem.add_development_dependency('typescript-node', '>= 0.0.5')
 end
 
