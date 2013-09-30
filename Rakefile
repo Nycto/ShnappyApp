@@ -288,7 +288,7 @@ end
 
 
 # Builds the java WAR file
-task :package => [ :sass, :typescript, :resources ] do
+task :package => [ :sass, :javascript, :resources ] do
     sh("sbt package-war")
     puts "Packaged: #{war}"
 end
