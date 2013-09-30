@@ -22,7 +22,14 @@ module Shnappy {
 
 
     /** A single component comprising the content of a page */
-    export interface Component {}
+    export interface Component {
+
+        /** Returns the type of component */
+        getType(): string
+
+        /** Returns a JSON representation the data in this content */
+        getJson(): any
+    }
 
     /** The set of page components */
     export module Components {
@@ -35,6 +42,14 @@ module Shnappy {
             static parse ( json: any ): Markdown {
                 return new Markdown( json.content || "" );
             }
+
+            /** {@inheritDoc} */
+            public getType(): string { return "markdown"; }
+
+            /** {@inheritDoc} */
+            public getJson(): any {
+                return { type: "markdown", content: this.content };
+            }
         }
 
         /** Parses a component */
@@ -43,11 +58,17 @@ module Shnappy {
                 markdown: Markdown.parse
             });
         }
-
     }
 
     /** A page element type */
-    export interface ContentData {}
+    export interface ContentData {
+
+        /** Returns the type of data in this content */
+        getType(): string
+
+        /** Returns a JSON representation the data in this content */
+        getJson(): any
+    }
 
     /** A Page */
     export class Page implements ContentData {
@@ -71,6 +92,24 @@ module Shnappy {
                 json.navSort
             );
         }
+
+        /** {@inheritDoc} */
+        public getType(): string { return "page"; }
+
+        /** {@inheritDoc} */
+        public getJson(): any {
+            var json = {
+                type: "page",
+                title: this.title,
+                slug: this.slug,
+                content: this.content.map( (c) => c.getJson() )
+            };
+
+            if ( this.sort )
+                json['navSort'] = this.sort;
+
+            return json;
+        }
     }
 
     /** A RawLink */
@@ -85,6 +124,19 @@ module Shnappy {
         static parse ( json: any ): RawLink {
             requireKeys(json, "text", "url", "navSort");
             return new RawLink( json.text, json.url, json.navSort );
+        }
+
+        /** {@inheritDoc} */
+        public getType(): string { return "link"; }
+
+        /** {@inheritDoc} */
+        public getJson(): any {
+            return {
+                type: "link",
+                text: this.text,
+                url: this.url,
+                navSort: this.sort
+            };
         }
     }
 
@@ -106,6 +158,16 @@ module Shnappy {
                     page: Page.parse
                 })
             );
+        }
+
+        /** Returns the type of data in this content */
+        public getType(): string {
+            return this.data.getType();
+        }
+
+        /** Returns a JSON representation the data in this content */
+        public getJson(): any {
+            return this.data.getJson();
         }
     }
 }
