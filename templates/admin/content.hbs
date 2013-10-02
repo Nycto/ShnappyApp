@@ -59,7 +59,13 @@
 
 <script type="text/html" id="Content-page">
     <fieldset>
-        <input id="page-title" ng-model="content.title" required>
+        <input id="page-title" ng-model="content.title"
+            placeholder="Page Title" required>
+    </fieldset>
+    <fieldset>
+        <aside>e.g. "/path" in http://www.example.com/path</aside>
+        <input id="link-slug" class="path-field"
+            ng-model="content.slug" required>
     </fieldset>
     <component component="component"
         ng-repeat="component in content.content"></component>
