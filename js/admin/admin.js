@@ -41,7 +41,7 @@ if ( window.loggedIn !== undefined ) {
 /**
  * Admin interface
  */
-var shnappy = angular.module('Shnappy', []);
+var shnappy = angular.module('Shnappy', ['ngRoute']);
 
 /**
  * Returns the content for a template by its ID
