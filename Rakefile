@@ -14,6 +14,7 @@ require 'listen'
 require 'uglifier'
 require 'jshintrb'
 require 'typescript-node'
+require 'uri'
 
 # Gets set to false when compiling for a deployment
 $debug = true
@@ -329,5 +330,43 @@ end
 # Deploys this site out to heroku
 task :deploy => [ :disable_debug, :herokucli, :herokuapp, :default ] do
     sh("heroku deploy:war --app #{$app_name} --war #{war}")
+end
+
+
+# Bootstraps data into a new site
+task :bootstrap, [:url] => [ :herokucli, :herokuapp ] do |t, args|
+
+    name = getInput("What is your name?")
+    email = getInput("What is your email address?")
+    title = getInput("What is the name of your website?")
+
+    baseURL = args[:url] || "https://#{$app_name}.herokuapp.com";
+    url = URI(baseURL)
+
+    puts "Sending bootstrap request to:"
+    puts url
+    puts
+
+    key = SecureRandom.hex(128)
+
+    if args.empty?
+        sh("heroku config:set --app #{$app_name} BOOTSTRAP_KEY=#{key}")
+        puts
+    end
+
+    resp = Net::HTTP.start(
+        url.host, url.port, :use_ssl => url.scheme == "https"
+    ) do |http|
+        req = Net::HTTP::Post.new( "/admin/api/bootstrap" )
+        req.set_form_data(
+            :bootstrapKey => key, :name => name,
+            :email => email, :title => title
+        )
+        http.request(req)
+    end
+
+    fail "Bootstrap failed: #{resp.body}" unless resp.is_a?(Net::HTTPSuccess)
+
+    puts "Success!"
 end
 
