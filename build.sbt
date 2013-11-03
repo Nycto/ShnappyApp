@@ -15,6 +15,11 @@ scalacOptions ++= Seq("-deprecation", "-feature")
 // Set a custom resource directory to pull in built assets
 resourceDirectory in Compile <<= (target in Compile)( _ / "resources" )
 
+publishTo := Some("Spikemark" at "https://spikemark.herokuapp.com/maven/roundeights")
+
+credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
+
+resolvers ++= Seq("RoundEights" at "http://maven.spikemark.net/roundeights")
 
 // Application dependencies
 libraryDependencies ++= Seq(
