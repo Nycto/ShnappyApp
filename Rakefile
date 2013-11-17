@@ -341,6 +341,8 @@ task :bootstrap, [:url] => [ :herokucli, :herokuapp ] do |t, args|
     email = getInput("What is your email address?")
     title = getInput("What is the name of your website?")
 
+    # Allows you to test locally by doing this:
+    # rake "bootstrap[http://127.0.0.1:8080]"
     baseURL = args[:url] || "https://#{$app_name}.herokuapp.com";
     url = URI(baseURL)
 
