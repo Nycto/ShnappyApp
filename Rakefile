@@ -253,7 +253,7 @@ task :watch do
 
     recompile( true, true )
 
-    Listen.to!(targets) do |modified, added, removed|
+    Listen.to(targets) do |modified, added, removed|
         joined = modified + added + removed
 
         puts
@@ -264,7 +264,8 @@ task :watch do
             joined.any? { |file| File.extname(file) == ".scss" },
             joined.any? { |file| [".js", ".ts"].include? File.extname(file) }
         )
-    end
+    end.start
+    sleep
 end
 
 
