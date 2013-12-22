@@ -213,6 +213,8 @@ task :javascript do
     processJS { |js| Uglifier.new.compile( js ) }
 end
 
+task :js => [ :javascript ]
+
 
 # Listen for changes to Javascript and CSS, then rebuild
 task :watch do
