@@ -151,6 +151,27 @@ task :sass do
 end
 
 
+# Returns a list of js files to ignore when running jshint
+def jshint_ignore
+    tests = Dir.glob('**/.jshintignore').map do |jshint_file|
+
+        dir = File.dirname(jshint_file) + "/"
+
+        lines = File.read(jshint_file).split("\n").map do |line|
+            "/" + line.strip
+        end
+
+        lambda do |file|
+            file.start_with?(dir) && lines.any? { |line| file.end_with? line }
+        end
+    end
+
+    lambda do |file|
+        tests.any? { |test| test.call(file) }
+    end
+end
+
+
 # A helper method that finds javascript files, jshints them and figures out
 # where to put them, then hands off compilation to a helper method
 def processJS ( &compile )
@@ -185,6 +206,8 @@ def processJS ( &compile )
         result.js
     end
 
+    is_ignored = jshint_ignore
+
     puts "Compiling JavaScript..."
     Dir.glob('js/**/*').map do |file|
         next unless File.file?( file )
@@ -195,6 +218,9 @@ def processJS ( &compile )
         if ( File.extname(file) == ".ts" )
             next if File.basename(file).start_with?("_")
             content = compileTS( file )
+        elsif ( is_ignored.call(file) )
+            puts "Ignoring JSHint for #{file}"
+            content = File.read(file)
         else
             content = jsHint( file )
         end
