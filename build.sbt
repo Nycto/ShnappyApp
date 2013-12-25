@@ -23,7 +23,7 @@ resolvers ++= Seq("RoundEights" at "http://maven.spikemark.net/roundeights")
 
 // Application dependencies
 libraryDependencies ++= Seq(
-    "com.roundeights" %% "shnappy" % "0.1",
+    "com.roundeights" %% "shnappy" % "0.2",
     "com.roundeights" %% "skene" % "0.1",
     "com.roundeights" %% "tubeutil" % "0.1",
     "net.databinder.dispatch" %% "dispatch-core" % "0.10.1",
