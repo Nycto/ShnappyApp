@@ -114,10 +114,8 @@ task :setup => [ :heroku, :secret, :cloudant ] do
 end
 
 
-# Compile the Sass
-task :sass do
-    puts "Compiling Sass..."
-
+# Compile the Sass files and return a list of compiled output files
+def process_sass
     includes = ["css"] + Gem::Specification.inject([]) do |memo, gem|
         dir = gem.gem_dir + "/app/assets/stylesheets"
         memo.push(dir) if File.exists?(dir)
@@ -132,10 +130,10 @@ task :sass do
         .reject{ |file| File.basename(file).start_with?("_") }
         .map do |file|
             withoutExt = file.chomp( File.extname(file) )
-            compileTo = "target/resources/#{withoutExt}.css"
-            FileUtils.mkpath( File.dirname(compileTo) )
+            compile_to = "target/temp_resources/#{withoutExt}.css"
+            FileUtils.mkpath( File.dirname(compile_to) )
 
-            puts "Compiling #{file} to #{compileTo}"
+            puts "Compiling #{file} to #{compile_to}"
 
             engine = Sass::Engine.for_file(
                 file,
@@ -146,9 +144,32 @@ task :sass do
                 :load_paths => includes
             )
 
-            File.open(compileTo, 'w') { |file| file.write(engine.render) }
+            File.open(compile_to, 'w') { |file| file.write(engine.render) }
         end
 end
+
+# Copies files in the given directory to the resources directory
+def copy_resources ( dir )
+    Dir.glob( File.join("target/temp_resources/", dir, "**/*") )
+        .select{ |path| File.file?(path) }
+        .each do |file|
+            destination = File.join(
+                "target/resources",
+                file.reverse.chomp("target/temp_resources/".reverse).reverse )
+            puts "Creating #{destination}"
+            FileUtils.mkpath( File.dirname(destination) )
+            FileUtils.cp(file, destination)
+        end
+end
+
+# Compile the Sass
+task :sass do
+    puts "Compiling Sass..."
+    process_sass
+    copy_resources("css")
+end
+
+task :css => [ :sass ]
 
 
 # Returns a list of js files to ignore when running jshint
@@ -174,7 +195,7 @@ end
 
 # A helper method that finds javascript files, jshints them and figures out
 # where to put them, then hands off compilation to a helper method
-def processJS ( &compile )
+def process_js ( &compile )
     reporter = Jshintrb::Reporter::Default.new
 
     # Executes JSHint on a file and returns its content
@@ -212,8 +233,9 @@ def processJS ( &compile )
     Dir.glob('js/**/*').map do |file|
         next unless File.file?( file )
 
-        compileTo = "target/resources/#{file.chomp(File.extname(file))}.js"
-        FileUtils.mkpath( File.dirname(compileTo) )
+        filename = file.chomp(File.extname(file))
+        compile_to = "target/temp_resources/#{filename}.js"
+        FileUtils.mkpath( File.dirname(compile_to) )
 
         if ( File.extname(file) == ".ts" )
             next if File.basename(file).start_with?("_")
@@ -225,9 +247,9 @@ def processJS ( &compile )
             content = jsHint( file )
         end
 
-        puts "  Compiling to #{compileTo}"
+        puts "  Compiling to #{compile_to}"
 
-        File.open(compileTo, 'w') do |out|
+        File.open(compile_to, 'w') do |out|
             out.write( compile.call( content ) )
         end
     end
@@ -236,7 +258,8 @@ end
 
 # Compile the JavaScript
 task :javascript do
-    processJS { |js| Uglifier.new.compile( js ) }
+    process_js { |js| Uglifier.new.compile( js ) }
+    copy_resources( "js" )
 end
 
 task :js => [ :javascript ]
@@ -249,8 +272,7 @@ task :watch do
     def recompile( css, js )
         if css
             begin
-                Rake::Task["sass"].reenable
-                Rake::Task["sass"].invoke
+                process_sass
             rescue Sass::SyntaxError => err
                 puts
                 puts "Sass Syntax Error"
@@ -264,7 +286,7 @@ task :watch do
 
         if js
             begin
-                processJS { |js| js }
+                process_js { |js| js }
             rescue RuntimeError => err
                 puts
                 puts err
