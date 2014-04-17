@@ -437,14 +437,27 @@ shnappy.directive('edit', ['$compile', function ($compile) {
 }]);
 
 /** A for rendering the edit a specific component */
-shnappy.directive('component', ['$compile', function ($compile) {
+shnappy.directive('components', function () {
     return {
         restrict: 'E',
-        scope: { component: '=' },
+        scope: { components: '=' },
         link: function (scope, elem) {
-            var tpl = getTemplate( "Component-" + scope.component.getType() );
-            elem.replaceWith( $compile(tpl)(scope) );
+            var root = document.createElement("div");
+            elem.replaceWith(root);
+
+            var ui = new Blocks.UI(root, {
+                htmlEditor: function(elem) {
+                    new window.Pen( {
+                        stay: false,
+                        editor: elem
+                    });
+                }
+            });
+
+            scope.$watch( "components", function () {
+                ui.edit( scope.components );
+            });
         }
     };
-}]);
+});
 

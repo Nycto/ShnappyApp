@@ -2,6 +2,7 @@
 @import "admin/typography";
 @import "admin/persona";
 @import "admin/clearfix";
+@import "admin/pen";
 
 @mixin dull-link {
     padding: 0;
@@ -203,6 +204,11 @@ form {
         width: 100%;
         padding: 8px 10px;
         box-sizing: border-box;
+    }
+
+    .html-editor {
+        border: 1px solid #ccc;
+        padding: 8px 10px;
     }
 
     input[type=checkbox] {

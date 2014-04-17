@@ -1,3 +1,5 @@
+/// <reference path="_blocks.ts"/>
+
 /**
  * Shnappy content data
  */
@@ -8,56 +10,6 @@ module Shnappy {
         keys.forEach( (key) => {
             if ( !json[key] ) throw "Missing key: " + key
         });
-    }
-
-    /** Parses a typed object against a list of parsing methods */
-    function parseType<T> (
-        json: any,
-        parsers: { [key: string]: (any) => T }
-    ): T {
-        if ( !json.type ) throw "Object is missing a 'type' property";
-        if ( !parsers[json.type] ) throw "Unrecognized type: " + json.type;
-        return parsers[json.type]( json );
-    }
-
-
-    /** A single component comprising the content of a page */
-    export interface Component {
-
-        /** Returns the type of component */
-        getType(): string
-
-        /** Returns a JSON representation the data in this content */
-        getJson(): any
-    }
-
-    /** The set of page components */
-    export module Components {
-
-        /** A piece of markdown content */
-        export class Markdown implements Component {
-            constructor ( private content: string ) {}
-
-            /** Parses a Markdown Component */
-            static parse ( json: any ): Markdown {
-                return new Markdown( json.content || "" );
-            }
-
-            /** {@inheritDoc} */
-            public getType(): string { return "markdown"; }
-
-            /** {@inheritDoc} */
-            public getJson(): any {
-                return { type: "markdown", content: this.content };
-            }
-        }
-
-        /** Parses a component */
-        export function parse ( json: any ): Component {
-            return parseType<Component>(json, {
-                markdown: Markdown.parse
-            });
-        }
     }
 
     /** A page element type */
@@ -75,7 +27,7 @@ module Shnappy {
         constructor(
             private title: string,
             private slug: string,
-            private content: Component[],
+            private content: Blocks.Component[],
             private sort?: string
         ) {}
 
@@ -88,7 +40,7 @@ module Shnappy {
             return new Page(
                 json.title,
                 json.slug,
-                json.content.map( Components.parse ),
+                json.content.map( Blocks.parse ),
                 json.navSort
             );
         }
@@ -153,7 +105,7 @@ module Shnappy {
             requireKeys(json, "siteID", "contentID", "type");
             return new Content(
                 json.siteID, json.contentID,
-                parseType<ContentData>( json, {
+                Blocks.parseType<ContentData>( json, {
                     link: RawLink.parse,
                     page: Page.parse
                 })

@@ -67,18 +67,6 @@
         <input id="link-slug" class="path-field"
             ng-model="content.slug" required>
     </fieldset>
-    <component component="component"
-        ng-repeat="component in content.content"></component>
-</script>
-
-<script type="text/html" id="Component-markdown">
-    <fieldset>
-        <aside>
-            <a href='http://daringfireball.net/projects/markdown/syntax'>
-                This field is formatted using markdown
-            </a>
-        </aside>
-        <textarea class='markdown' ng-model="component.content"></textarea>
-    </fieldset>
+    <div><components components="content.content"></component></div>
 </script>
 
