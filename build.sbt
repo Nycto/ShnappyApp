@@ -4,7 +4,7 @@ organization := "com.roundeights"
 
 version := "0.1"
 
-scalaVersion := "2.10.3"
+scalaVersion := "2.11.2"
 
 // Support for the web plugin
 seq(webSettings :_*)
